@@ -2,8 +2,13 @@
 <head>
 <?php echo html::stylesheet('media/css/common.css') ?>
 <?php echo html::stylesheet('media/css/ui-'.$this->config->conf['ui-theme'].'/jquery-ui.css') ?>
+<?php echo html::script('media/js/jquery-min.js')?>
+<?php echo html::script('media/js/jquery-ui.min.js')?>
 </head>
 <body>
+<script type="text/javascript">
+var imgprops = "";
+</script>
 <div class="pagebody">
 <div class="ui-widget">
 <div class="ui-widget-header ui-corner-top">
@@ -17,12 +22,36 @@
   div#zoomBox, div#zoomSensitiveZone {display: none}
   #why {position: static; width: auto}
 </STYLE>
-<?php if(!empty($tpl)){ ?>
-<img id="zoomGraphImage" src="image?source=<?php echo $source?>&tpl=<?php echo $tpl?>&view=<?php echo $view?>&start=<?php echo $start?>&end=<?php echo $end?>&graph_height=<?php echo $graph_height?>&graph_width=<?php echo $graph_width?>&title_font_size=10">
-<?php }else{ ?>
-<img id="zoomGraphImage" src="image?source=<?php echo $source?>&host=<?php echo $host?>&srv=<?php echo $srv?>&view=<?php echo $view?>&start=<?php echo $start?>&end=<?php echo $end?>&graph_height=<?php echo $graph_height?>&graph_width=<?php echo $graph_width?>&title_font_size=10">
-<?php }
-include("media/js/zoom.js") ?>
+
+<?php
+$tplstr="";
+$hoststr="";
+$srvstr="";
+if(!empty($tpl)) {
+	$tplstr="&tpl=" . $tpl;
+} else {
+	$hoststr="&host=" . $host;
+	$srvstr="&srv=" . $srv;
+}
+
+$valuestr="";
+if(isset($this->value_min) && isset($this->value_max)) {
+	$valuestr="&value_min=" . $this->value_min . "&value_max=" . $this->value_max;
+}
+
+$imgcode="image?source=" . $source . $tplstr;
+$imgcode=$imgcode . $hoststr . $srvstr . "&view=" . $view . "&start=". $start . "&end=" . $end;
+$imgcode=$imgcode . "&graph_height=" . $graph_height . "&graph_width=" . $graph_width . "&title_font_size=10" . $valuestr;
+echo "<img id=\"zoomGraphImage\" src=\"" . $imgcode . "\">\n";
+?>
+<script type="text/javascript">
+$.getJSON("<?php echo $imgcode . "&putdata=1"?>", function (data) {
+	imgprops=data;
+});
+</script>
+<?php
+include("media/js/zoom.js")
+?>
 </div>
 </div>
 </body>

@@ -644,8 +644,17 @@ function onMouseUpEvent(e) {
 				var view = gUrlObj.getUrlParameterValue("view");
 				var source = gUrlObj.getUrlParameterValue("source");
 				var titleFontSize = gUrlObj.getUrlParameterValue("title_font_size");
+				
+				// imgprops contains data provided by rrd graphv verbose mode
+				// imgprops.value_min contains minimal value for graph
+				// imgprops.value_max contains maximal value for graph
+				var value_min = parseFloat(imgprops.value_min);
+				var value_max = parseFloat(imgprops.value_max);
+				var OnePixelY = Math.abs(value_max - value_min) / gZoomGraphObj.zoomBoxHeight;  // Represent # of seconds for 1 pixel on the graph
+				var diap_min = OnePixelY * (gZoomGraphObj.zoomBoxHeight - maxY) + value_min;
+				var diap_max = OnePixelY * (gZoomGraphObj.zoomBoxHeight - minY) + value_min;
 
-				open(urlBase + "&tpl=" + tpl + "&host=" + host + "&srv=" + srv + "&view=" + view + "&source=" + source + "&start=" + newGraphStart + "&end=" + newGraphEnd + "&graph_height=" + graphHeight + "&graph_width=" + graphWidth + "&title_font_size=" + titleFontSize, "_self");
+				open(urlBase + "&tpl=" + tpl + "&host=" + host + "&srv=" + srv + "&view=" + view + "&source=" + source + "&start=" + newGraphStart + "&end=" + newGraphEnd + "&graph_height=" + graphHeight + "&graph_width=" + graphWidth + "&title_font_size=" + titleFontSize + "&value_min=" + diap_min + "&value_max=" + diap_max, "_self");
 			}
 		}
 	}

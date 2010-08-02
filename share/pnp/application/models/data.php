@@ -17,6 +17,7 @@ class Data_Model extends Model
     public  $XPORT = "";
     public  $TEMPLATE_FILE = "";
     public  $GRAPH_TYPE = 'normal';
+    public  $RRD_EXTRA = "";
     /*
     * 
     *
@@ -314,7 +315,7 @@ class Data_Model extends Model
                 $tmp_struct['VIEW']          = $view;
                 $tmp_struct['TEMPLATE_FILE'] = $this->TEMPLATE_FILE;;
                 $tmp_struct['SOURCE']        = $key;
-                $tmp_struct['RRD_CALL']      = $this->TIMERANGE['cmd'] . " ". $this->RRD['opt'][$key] . " " . $this->RRD['def'][$key];
+                $tmp_struct['RRD_CALL']      = $this->TIMERANGE['cmd'] . " ". $this->RRD['opt'][$key] . $this->RRD_EXTRA . " " . $this->RRD['def'][$key];
                 $tmp_struct['TIMERANGE']     = $this->TIMERANGE;
                 if(array_key_exists('ds_name',$this->RRD) ){
                      $tmp_struct['ds_name']   = $this->RRD['ds_name'][$key];

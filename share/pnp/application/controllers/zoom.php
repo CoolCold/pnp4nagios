@@ -16,6 +16,8 @@ class Zoom_Controller extends System_Controller  {
         $this->host              = $this->input->get('host');
         $this->service           = $this->input->get('srv');
         $this->tpl               = $this->input->get('tpl');
+        $this->value_min         = $this->input->get('value_min');
+        $this->value_max         = $this->input->get('value_max');
     }
 
     public function index()

@@ -67,13 +67,15 @@ class Rrdtool_Model extends Model
 
     }
 
-    public function doImage($RRD_CMD, $out='STDOUT') {
+    public function doImage($RRD_CMD, $out='STDOUT', $beverbose=0) {
         $conf = $this->config->conf;
         # construct $command to rrdtool
+        $graphcmd = "graph";
+        if ($beverbose == 1){ $graphcmd = "graphv"; }
         if(isset($conf['RRD_DAEMON_OPTS']) && $conf['RRD_DAEMON_OPTS'] != '' ){
-            $command = " graph --daemon=" . $conf['RRD_DAEMON_OPTS'] . " - ";
+            $command = " " . $graphcmd . " --daemon=" . $conf['RRD_DAEMON_OPTS'] . " - ";
         }else{
-            $command = " graph - ";
+            $command = " " . $graphcmd . " - ";
         }
 
         $width = 0;
@@ -195,7 +197,18 @@ class Rrdtool_Model extends Model
             header("Content-type: image/png");       
             imagepng($img);
             imagedestroy($img);
-        }else{
+	} elseif (preg_match('/BLOB_SIZE:/', $data)) {
+		// BLOB_SIZE found -> we have image info from rrd
+		$aa=explode("\n",$data);
+		for ($i=0;$i<9;$i+=1) {
+			//echo $aa[$i] . "\n";
+			$bb=explode(" ",$aa[$i]);
+			$aajson[$bb[0]]=$bb[2];
+		}
+		//print_r($aajson);
+		header("Content-type: application/json");
+		echo json_encode($aajson);
+	}else{
             header("Content-type: image/png");       
             echo $data;
         }
