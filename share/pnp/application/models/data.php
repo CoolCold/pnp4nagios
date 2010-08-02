@@ -291,10 +291,10 @@ class Data_Model extends Model
         $conf = $this->config->conf;
 
         /*
-         * Special Templates without Host/Service
+         * Special templates without Host/Service
          */
         if($host == '__special' ){
-            // $service contains the Template name
+            // $service contains the template name
             $this->includeTemplate($service,'special');
         }else{
             if( $this->readXML($host,$service) == FALSE ){
@@ -319,11 +319,10 @@ class Data_Model extends Model
                 $tmp_struct['TIMERANGE']     = $this->TIMERANGE;
                 if(array_key_exists('ds_name',$this->RRD) ){
                      $tmp_struct['ds_name']   = $this->RRD['ds_name'][$key];
-                }else{
+                }elseif(array_key_exists($i, $this->DS)){
                      $tmp_struct['ds_name']   = $this->DS[$i]['NAME'];
-                }
-                if($this->DS){
-                    $tmp_struct['DS']      = $this->DS[$i];
+                }else{
+                     $tmp_struct['ds_name']   = "UNDEF";
                 }
                 $tmp_struct['MACRO']   = $this->MACRO;
                 if(isset($this->XML->XML->VERSION)){
@@ -351,14 +350,13 @@ class Data_Model extends Model
                     $tmp_struct['SOURCE']        = $key;
                     $tmp_struct['RRD_CALL']      = $this->TIMERANGE[$v]['cmd'] . " " . $this->RRD['opt'][$key] . " " . $this->RRD['def'][$key];
                     if(array_key_exists('ds_name',$this->RRD) ){
-                            $tmp_struct['ds_name']   = $this->RRD['ds_name'][$key];
+                        $tmp_struct['ds_name']   = $this->RRD['ds_name'][$key];
+                    }elseif(array_key_exists($i, $this->DS)){
+                        $tmp_struct['ds_name']   = $this->DS[$i]['NAME'];
                     }else{
-                            $tmp_struct['ds_name']   = $this->DS[$i]['NAME'];
+                        $tmp_struct['ds_name']   = "UNDEF";
                     }
                     $tmp_struct['TIMERANGE']     = $this->TIMERANGE[$v];
-                    if($this->DS){
-                        $tmp_struct['DS']            = $this->DS[$i];
-                    }
                     $tmp_struct['MACRO']         = $this->MACRO;
                     if(isset($this->XML->XML->VERSION)){
                         $tmp_struct['VERSION']   = pnp::xml_version_check( (string) $this->XML->XML->VERSION);
@@ -385,12 +383,11 @@ class Data_Model extends Model
                 $tmp_struct['RRD_CALL']      = $this->TIMERANGE[$view]['cmd'] . " ". $this->RRD['opt'][$key] . " " . $this->RRD['def'][$key];
                 $tmp_struct['TIMERANGE']     = $this->TIMERANGE[$view];
                 if(array_key_exists('ds_name',$this->RRD) ){
-                     $tmp_struct['ds_name']  = $this->RRD['ds_name'][$key];
+                    $tmp_struct['ds_name']   = $this->RRD['ds_name'][$key];
+                }elseif(array_key_exists($i, $this->DS)){
+                    $tmp_struct['ds_name']   = $this->DS[$i]['NAME'];
                 }else{
-                     $tmp_struct['ds_name']  = $this->DS[$i]['NAME'];
-                }
-                if($this->DS){
-                    $tmp_struct['DS']            = $this->DS[$i];
+                    $tmp_struct['ds_name']   = "UNDEF";
                 }
                 $tmp_struct['MACRO']         = $this->MACRO;
                 if(isset($this->XML->XML->VERSION)){
@@ -463,7 +460,7 @@ class Data_Model extends Model
             include($template_file);
             ob_end_clean();
         }
-       // Compatibility for very old Templates
+        // Compatibility for very old Templates
         if(!is_array($def) && $def != FALSE){
             $tmp[1] = $def;
             $def = $tmp;
@@ -477,21 +474,29 @@ class Data_Model extends Model
             $ds_name = $tmp;
         }
         //
-
         if($def != FALSE){
-            $this->RRD['def'] = $def;
+            $this->RRD['def'] = $this->array_reindex($def);
         }else{
             throw new Kohana_Exception('error.template-without-def', $template_file);
         }
         if($opt != FALSE ){
-            $this->RRD['opt'] = $opt;
+            $this->RRD['opt'] = $this->array_reindex($opt);
         }else{
             throw new Kohana_Exception('error.template-without-opt', $template_file);
         }
         if( $ds_name != FALSE ){
-            $this->RRD['ds_name'] = $ds_name;
+            $this->RRD['ds_name'] = $this->array_reindex($ds_name);
         }
         return TRUE;        
+    }
+    
+    private function array_reindex($data){
+        $i=0;
+        foreach($data as $d){
+            $tmp[$i] = $d;
+            $i++; 
+        }
+        return $tmp;
     }
     
     /*
