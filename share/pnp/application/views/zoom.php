@@ -33,10 +33,9 @@ if(!empty($tpl)) {
 	$hoststr="&host=" . $host;
 	$srvstr="&srv=" . $srv;
 }
-
 $valuestr="";
-if(isset($this->value_min) && isset($this->value_max)) {
-	$valuestr="&value_min=" . $this->value_min . "&value_max=" . $this->value_max;
+if(is_numeric($value_min) && is_numeric($value_max)) {
+	$valuestr="&value_min=" . $value_min . "&value_max=" . $value_max;
 }
 
 $imgcode="image?source=" . $source . $tplstr;
