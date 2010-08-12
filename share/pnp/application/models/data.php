@@ -68,25 +68,29 @@ class Data_Model extends Model
         $hosts = array();
         $conf = $this->config->conf;
         $i = 0;
-           if (is_dir($conf['rrdbase'])) {
-               if ($dh = opendir($conf['rrdbase'])) {
-                   while (($file = readdir($dh)) !== false) {
-                       if ($file == "." || $file == ".." || $file == ".pnp-internal")
-                           continue;
-                       $stat = stat($conf['rrdbase'] . "/" . $file);
-                       $age = (time() - $stat['mtime']);
-                       $hosts[$i]['name'] = $file;
-                       $hosts[$i]['sort'] = strtoupper($file);
-                       if ($age < $conf['max_age']) {
-                           $hosts[$i]['state'] = 'active';
-                       } else {
-                           $hosts[$i]['state'] = 'inactive';
-                       }
+            if (is_dir($conf['rrdbase'])) {
+                if ($dh = opendir($conf['rrdbase'])) {
+                    while (($file = readdir($dh)) !== false) {
+                        if ($file == "." || $file == ".." || $file == ".pnp-internal")
+                            continue;
+                        
+                        if (is_file($conf['rrdbase'] . "/" . $file) )
+                            continue;
+
+                        $stat = stat($conf['rrdbase'] . "/" . $file);
+                        $age = (time() - $stat['mtime']);
+                        $hosts[$i]['name'] = $file;
+                        $hosts[$i]['sort'] = strtoupper($file);
+                        if ($age < $conf['max_age']) {
+                            $hosts[$i]['state'] = 'active';
+                        } else {
+                            $hosts[$i]['state'] = 'inactive';
+                        }
                 $i++;
                    }
                    closedir($dh);
                } else {
-                throw new Kohana_User_Exception('Perfdata Dir', "Can not open $path");
+                    throw new Kohana_User_Exception('Perfdata Dir', "Can not open $path");
                }
            }
         if(sizeof($hosts)>0){
@@ -136,6 +140,8 @@ class Data_Model extends Model
                     $i++;
                 }
             }
+        }else{
+            throw new Kohana_Exception('error.perfdata-dir-for-host', $path, $hostname );
         }
         if( is_array($services) && sizeof($services) > 0){
             # Obtain a list of columns
@@ -145,6 +151,8 @@ class Data_Model extends Model
             # Sort the data with volume descending, edition ascending
             # Add $data as the last parameter, to sort by the common key
             array_multisort($sort, SORT_STRING, $services);
+        }else{
+            throw new Kohana_Exception('error.host-perfdata-dir-empty', $path, $hostname );
         }        
         return $services;
     }
@@ -284,9 +292,9 @@ class Data_Model extends Model
     * 
     *
     */
-    public function buildDataStruct ($host = FALSE, $service = FALSE, $view = "", $source = ""){
-        if($host === false && $service === false){
-            return false;
+    public function buildDataStruct ($host = FALSE, $service = FALSE, $view = NULL, $source = NULL){
+        if($host === FALSE && $service === FALSE){
+            return FALSE;
         }
         $conf = $this->config->conf;
 
@@ -307,7 +315,7 @@ class Data_Model extends Model
             $view = intval($view);
             $i=0;
             foreach( $this->RRD['def'] as $key=>$val){
-                if( $source != "" && $source != $key ){
+                if( ! is_null($source) && $source != $key ){
                     continue;
                 }
                 $tmp_struct = array();
@@ -340,7 +348,7 @@ class Data_Model extends Model
             foreach($this->config->views as $view_key=>$view_val){
                 $i=0;
                 foreach( $this->RRD['def'] as $key=>$val){
-                    if($source != "" && $source != $key ){
+                    if( ! is_null($source) && $source != $key ){
                         continue;
                     }
                     $tmp_struct = array();
@@ -372,7 +380,7 @@ class Data_Model extends Model
             $view = intval($view);
             $i=0;
             foreach( $this->RRD['def'] as $key=>$val){
-                if( $source != "" && $source != $key ){
+                if( ! is_null($source) && $source != $key ){
                     continue;
                 }
                 $tmp_struct = array();
@@ -716,7 +724,7 @@ class Data_Model extends Model
                 }
             }
         }
-        #print Kohana::debug(sizeof($servicelist));
+        #print Kohana::debug($servicelist);
         if(sizeof($servicelist) > 0 ){
             foreach($servicelist as $s){
                 $this->buildDataStruct($s['host'],$s['service'],$view,$s['source']);
@@ -781,7 +789,9 @@ class Data_Model extends Model
             if($host['state'] == "inactive"){
                 continue;
             }
-            $new_hosts[] = $this->filterHostByPage($host['name']);
+            if($tmp = $this->filterHostByPage($host['name'])){
+                $new_hosts[] = $tmp;
+            }
         }
         return $new_hosts;
     }
@@ -816,7 +826,7 @@ class Data_Model extends Model
                     if(isset($g['service_desc']) && preg_match('/'.$g['service_desc'].'/',$service['name'])){
                         $data['service_desc'] = $g['service_desc'];
                         $data['host_name'] = $g['host_name'];
-                        $data['source'] = "";
+                        $data['source'] = NULL; 
                         // if we only want a single image 
                         if(isset($g['source'])){
                             $this->readXML($host,$service['name']);
@@ -838,7 +848,7 @@ class Data_Model extends Model
                     if(isset($g['service_desc']) && in_array($service['name'] ,$services_to_search_for) ){
                         $data['service_desc'] = $g['service_desc'];
                         $data['host_name'] = $g['host_name'];
-                        $data['source'] = "";
+                        $data['source'] = NULL;
                         // if we only want a single image 
                         if(isset($g['source'])){
                             $this->readXML($host,$service['name']);

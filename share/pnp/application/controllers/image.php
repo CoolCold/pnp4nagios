@@ -24,7 +24,7 @@ class Image_Controller extends System_Controller  {
         $start   = $this->input->get('start');
         $end     = $this->input->get('end');
         $view    = $this->config->conf['overview-range']; //default value
-        $source  = "";
+        $source  = NULL;
         $value_min = FALSE;
         $value_max = FALSE;
 
@@ -32,7 +32,13 @@ class Image_Controller extends System_Controller  {
             $view = $this->input->get('view') ;
 
         if($this->input->get('source') )
-            $source = $this->input->get('source') ;
+            $source = intval($this->input->get('source')) ;
+
+        if($this->input->get('w') != "" )
+            $this->rrdtool->config->conf['graph_width'] = intval($this->input->get('w'));
+
+        if($this->input->get('h') != "" )
+            $this->rrdtool->config->conf['graph_height'] = intval($this->input->get('h'));
 
         $beverbose=0;
         if($this->input->get('putdata') ) {
