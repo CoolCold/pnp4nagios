@@ -1,12 +1,12 @@
 Name:         pnp4nagios
-Version:      0.6.7
+Version:      0.6.14
 Release:      1
 License:      GNU Public License version 2
 Packager:     Olivier Raginel <babar@cern.ch>
 Vendor:       PNP4nagios team
 URL:          http://pnp4nagios.org
 Prefix:       /opt/pnp4nagios
-Source:       http://sunet.dl.sourceforge.net/project/pnp4nagios/PNP-0.6/pnp4nagios-0.6.7.tar.gz
+Source:       http://sunet.dl.sourceforge.net/project/pnp4nagios/PNP-0.6/pnp4nagios-0.6.14.tar.gz
 Group:        Applications/Monitoring
 Requires:     rrdtool,perl-rrdtool
 BuildRoot:    %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
