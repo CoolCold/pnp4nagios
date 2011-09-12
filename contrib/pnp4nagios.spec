@@ -6,11 +6,11 @@ Packager:     Olivier Raginel <babar@cern.ch>
 Vendor:       PNP4nagios team
 URL:          http://pnp4nagios.org
 Prefix:       /opt/pnp4nagios
-Source:       http://github.com/Babar/pnp4nagios/tarball/%{name}-%{version}.tar.gz
+Source:       http://sunet.dl.sourceforge.net/project/pnp4nagios/PNP-0.6/pnp4nagios-0.6.7.tar.gz
 Group:        Applications/Monitoring
-Requires:     perl(Gearman::Worker), perl(Crypt::Rijndael)
+Requires:     rrdtool,perl-rrdtool
 BuildRoot:    %{_tmppath}/%{name}-%{version}-root-%(%{__id_u} -n)
-Summary:      Gearman version of pnp4nagios
+Summary:      Pnp4nagios
 Provides:     pnp4nagios
 
 %description
@@ -19,8 +19,6 @@ From the web page (http://docs.pnp4nagios.org/pnp-0.6/start):
 PNP is an addon to Nagios which analyzes performance data provided by plugins
 and stores them automatically into RRD-databases (Round Robin Databases, see
 RRD Tool).
-
-This is the version with support for Gearman, suitable to use with mod_gearman.
 
 %prep
 %setup -q
@@ -40,6 +38,7 @@ This is the version with support for Gearman, suitable to use with mod_gearman.
 %install
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/%{_prefix}
+mkdir -p $RPM_BUILD_ROOT/etc/httpd/conf.d/
 
 %{__make} install fullinstall DESTDIR=$RPM_BUILD_ROOT INIT_OPTS= INSTALL_OPTS=
 
